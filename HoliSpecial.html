@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Holi ❤️🌈</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #720004, #000000, #a23b85, #a6c1ee);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        #startBtn {
+            padding: 20px 50px;
+            font-size: 22px;
+            background: linear-gradient(45deg, #ff69b4, #a23b85);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        #startBtn:hover { transform: scale(1.1); }
+
+        /* Card */
+        .card {
+            text-align: center;
+            padding: 60px 40px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.8s ease;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+            z-index: 10;
+            max-width: 90%;
+        }
+
+        h1 { font-size: 38px; margin-bottom: 25px; transition: text-shadow 0.8s ease; }
+
+        #lyrics {
+            font-size: 22px;
+            min-height: 45px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            border-right: 2px solid rgba(255,255,255,0.5);
+            display: inline-block;
+        }
+
+        .particle {
+            position: absolute;
+            bottom: -10vh;
+            pointer-events: none;
+            animation: floatUp 6s linear forwards;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+        }
+
+        .hidden { opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <h2 style="color: white; margin-bottom: 20px; font-weight: 300;">Jontu, Ready for the vibe?😉</h2>
+        <button id="startBtn">Jontu, Click on This Button to Vibe with Tirpinde😉🌈</button>
+    </div>
+
+    <audio id="holiSong" loop>
+        <source src="balam.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="card" id="mainCard">
+        <h1 id="title">Happy Holi Madam ji❤️🌈</h1>
+        <div id="lyrics"></div>
+    </div>
+
+    <script>
+        // --- PRECISION SYNC DATA (Seconds) ---
+        const syncLyrics = [
+            { time: 65, text: "Ho Teri Malmal Ki Kurti Gulabi Ho Gayi" },
+            { time: 69, text: "Manchali Chaal Kaise, Nawaabi Ho Gayi," },
+            { time: 73, text: "Balam Pichkari, Jo Tune Mujhe Maari" },
+            { time: 77, text: "Toh Seedhi Saadi Chhori Sharabi Ho Gayi" },
+            { time: 81, text: "Haa Jeans Pahen Ke, Jo Tune Maara Thumka" },
+            { time: 85, text: "Toh Lattoo Padosan Ki, Bhabhi Ho Gayi" },
+            { time: 89, text: "Balam Pichkari, Jo Tune Mujhe Maari" },
+            { time: 93, text: "Toh Seedhi Saadi Chhori Sharabi Ho Gayi" }
+        ];
+
+        const vibeColors = ["#ff69b4", "#ffd700", "#00ffcc", "#ff4500", "#1e90ff", "#adff2f"];
+        
+        const lyricsE1 = document.getElementById("lyrics");
+        const cardE1 = document.getElementById("mainCard");
+        const titleE1 = document.getElementById("title");
+        const song = document.getElementById("holiSong");
+        const overlay = document.getElementById("overlay");
+        const startBtn = document.getElementById("startBtn");
+
+        let currentLineIndex = -1;
+
+        // --- BACKGROUND AUDIO UNLOCK (0:00) ---
+        // Modern browsers block autoplay. This starts audio on first interaction.
+        const unlockAudio = () => {
+            if (song.paused) {
+                song.currentTime = 0; 
+                song.volume = 0.3; // Low volume for the overlay screen
+                song.play().catch(e => console.log("Waiting for user interaction..."));
+            }
+        };
+
+        // Listen for move, touch, or click to start the background music at 0:00
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+        document.addEventListener('mousemove', unlockAudio, { once: true });
+        document.addEventListener('click', unlockAudio, { once: true });
+
+        // Precision Typewriter
+        function typeLine(text, index) {
+            lyricsE1.textContent = ""; 
+            let charIndex = 0;
+            
+            const currentColor = vibeColors[index % vibeColors.length];
+            cardE1.style.boxShadow = `0 0 60px ${currentColor}`;
+            titleE1.style.textShadow = `0 0 20px ${currentColor}`;
+
+            function typing() {
+                if (charIndex < text.length) {
+                    lyricsE1.textContent += text.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typing, 45); // Adjusted speed for better sync
+                }
+            }
+            typing();
+        }
+
+        // Time Watcher - Checks every 100ms
+        song.addEventListener("timeupdate", () => {
+            const curTime = song.currentTime;
+            
+            for (let i = 0; i < syncLyrics.length; i++) {
+                if (curTime >= syncLyrics[i].time && currentLineIndex < i) {
+                    currentLineIndex = i;
+                    typeLine(syncLyrics[i].text, i);
+                }
+            }
+            
+            // Clean up if the song loops or is manually reset
+            if (curTime < 60 && currentLineIndex !== -1) {
+                currentLineIndex = -1;
+                lyricsE1.textContent = "";
+            }
+        });
+
+        function createParticle() {
+            const p = document.createElement("div");
+            p.className = "particle";
+            const shapes = ["💖", "✨", "🌸", "🎨", "💙", "💛", "💜"];
+            p.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+            p.style.left = Math.random() * 100 + "vw";
+            p.style.fontSize = Math.random() * 20 + 15 + "px";
+            p.style.animationDuration = Math.random() * 3 + 3 + "s";
+            document.body.appendChild(p);
+            setTimeout(() => { p.remove(); }, 6000);
+        }
+
+        // --- THE CELEBRATION DROP (1:05) ---
+        startBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // Stop the 'unlockAudio' from firing again
+            overlay.classList.add("hidden");
+            
+            // Jump to high-energy chorus
+            song.currentTime = 65; // 1 minute 05 seconds
+            song.volume = 1.0; // Crank it up!
+            
+            if(song.paused) song.play();
+            
+            // Start heart particles
+            setInterval(createParticle, 350);
+        });
+    </script>
+</body>
+</html>
