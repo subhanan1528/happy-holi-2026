@@ -119,16 +119,20 @@
 
     <div id="overlay">
         <h2 style="color: white; margin-bottom: 10px; font-weight: 300;">Jontu, Ready for the vibe?😉</h2>
-        <p class="audio-hint">Tap anywhere on the screen to unlock the music 🎵</p>
+        <p class="audio-hint">Tap anywhere on the screen to unlock the music (Not The Overlay Button, Press The Overlay Button After Few Minutes) 🎵</p>
         <button id="startBtn">Jontu, Click on This Button to Vibe with Tirpinde😉🌈</button>
     </div>
 
-    <audio id="holiSong" loop>
+    <audio id="panwadi" loop>
+        <source src="panwadi.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="balam" loop>
         <source src="balam.mp3" type="audio/mpeg">
     </audio>
 
     <div class="card" id="mainCard">
-        <h1 id="title">Happy Holi Madam ji❤️🌈</h1>
+        <h1 id="title">Happy Holi Queenie❤️🌈</h1>
         <div id="lyrics"></div>
     </div>
 
@@ -150,31 +154,30 @@
         const lyricsE1 = document.getElementById("lyrics");
         const cardE1 = document.getElementById("mainCard");
         const titleE1 = document.getElementById("title");
-        const song = document.getElementById("holiSong");
+        const panwadi = document.getElementById("panwadi");
+        const balam = document.getElementById("balam");
         const overlay = document.getElementById("overlay");
         const startBtn = document.getElementById("startBtn");
 
         let currentLineIndex = -1;
 
-        // --- BACKGROUND AUDIO UNLOCK (0:00) ---
+        // --- BACKGROUND AUDIO UNLOCK (Panwadi @ 0:55) ---
         const unlockAudio = () => {
-            if (song.paused) {
-                song.currentTime = 0; 
-                song.volume = 0.3; // Soft intro volume
-                song.play().catch(e => console.log("Waiting for user interaction..."));
+            if (panwadi.paused) {
+                panwadi.currentTime = 55; // Starts at 55 seconds
+                panwadi.volume = 0.4;     // Soft background volume
+                panwadi.play().catch(e => console.log("Waiting for user interaction..."));
             }
         };
 
-        // Listen for move, touch, or click to start the background music at 0:00
+        // Trigger Panwadi on first interaction
         document.addEventListener('touchstart', unlockAudio, { once: true });
         document.addEventListener('mousemove', unlockAudio, { once: true });
         document.addEventListener('click', unlockAudio, { once: true });
 
-        // Precision Typewriter
         function typeLine(text, index) {
             lyricsE1.textContent = ""; 
             let charIndex = 0;
-            
             const currentColor = vibeColors[index % vibeColors.length];
             cardE1.style.boxShadow = `0 0 60px ${currentColor}`;
             titleE1.style.textShadow = `0 0 20px ${currentColor}`;
@@ -189,20 +192,14 @@
             typing();
         }
 
-        // Time Watcher
-        song.addEventListener("timeupdate", () => {
-            const curTime = song.currentTime;
-            
+        // Time Watcher for Sync
+        balam.addEventListener("timeupdate", () => {
+            const curTime = balam.currentTime;
             for (let i = 0; i < syncLyrics.length; i++) {
                 if (curTime >= syncLyrics[i].time && currentLineIndex < i) {
                     currentLineIndex = i;
                     typeLine(syncLyrics[i].text, i);
                 }
-            }
-            
-            if (curTime < 60 && currentLineIndex !== -1) {
-                currentLineIndex = -1;
-                lyricsE1.textContent = "";
             }
         });
 
@@ -218,15 +215,18 @@
             setTimeout(() => { p.remove(); }, 6000);
         }
 
-        // --- THE CELEBRATION DROP (1:05) ---
+        // --- THE SWITCH (Panwadi -> Balam @ 1:05) ---
         startBtn.addEventListener("click", (e) => {
             e.stopPropagation(); 
             overlay.classList.add("hidden");
             
-            song.currentTime = 65; 
-            song.volume = 1.0; 
+            // Stop Overlay Music
+            panwadi.pause();
             
-            if(song.paused) song.play();
+            // Start Celebration Music at 1:05
+            balam.currentTime = 65; 
+            balam.volume = 1.0; 
+            balam.play();
             
             setInterval(createParticle, 350);
         });
